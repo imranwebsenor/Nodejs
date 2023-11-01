@@ -17,6 +17,7 @@ const ISODate = require("isodate");
 const sendMail = require("../../mails/registrationmail");
 const errorRsponse =require('../../utils/errorResponse');
 const ErrorResponse = require("../../utils/errorResponse");
+const asyncHandler = require('../../middleware/asyncMiddleware');
 
 
 const handleSession = async (req, res) => {
@@ -130,10 +131,8 @@ const register = async (req, res,next) => {
 
 
 
-const login = async (req, res,next) => {
+const login = asyncHandler(async (req, res,next) => {
   const { email, password } = req.body;
-
-  try {
     const user = await User.find({
       email,
       password,
@@ -144,10 +143,8 @@ const login = async (req, res,next) => {
     } else {
       next(new ErrorResponse(`Invalid Email or Password`,404));
     }
-  } catch (err) {
-    next(err)
-  }
-};
+ 
+});
 
 
 
