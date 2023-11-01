@@ -14,12 +14,7 @@ const errorHandler = (err, req, res, next) => {
         for (const key of Object.keys(errors)) {
             validation[key] =  errors[key].properties.message
         }
-        res.status(error.statusCode || 500).json({
-            success: false,
-            errors: validation
-        });
-        return;
-
+        error.message = validation;
     }
     res.status(error.statusCode || 500).json({
         success: false,
