@@ -14,6 +14,8 @@ const session = require("express-session");
 const authRoutes = require("./routes/auth");
 const usersRoutes = require("./routes/users");
 const sanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
+const limiter =require('./utils/throttling');
 const { errorHandler } = require('./middleware/error')
 
 
@@ -40,8 +42,16 @@ app.set("views", path.join(__dirname, "Views"));
 app.use(express.static(__dirname + "/public"));
 // Define routes
 
-//sanitize
+//rate limiter (throttling)
+app.use(limiter)
+
+
+//sanitize (prevents email or fields from getting data if provided empty)
 app.use(sanitize())
+
+//add protection headers to routes
+app.use(helmet())
+
 
 
 // app.use('/', authRoutes);
