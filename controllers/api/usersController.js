@@ -170,8 +170,10 @@ const login = asyncHandler(async (req, res, next) => {
 
 
 const getAllUsers = asyncHandler(async (req, res) => {
-    let response = await paginationHelper(req,User);
-    res.status(200).json(response);
+    let resp = await User.find().populate('addresses');
+    // let resp =await Address.find().populate('user')
+    // let response = await paginationHelper(req,User);
+    res.status(200).json(resp);
 });
 
 
@@ -192,12 +194,16 @@ const updateUser = asyncHandler(async (req, res) => {
 
 
 const deleteUser = asyncHandler(async (req, res) => {
-    let user = await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndRemove(req.params.id);
+    if (user) {
+        // await user.remove().exec();
+    } 
     res.status(200).json({success: true, message: "user deleted successfully"});
 });
 
 
 const addUserPhoto = asyncHandler(async (req, res, next) => {
+
     if (req ?. files ?. profile_picture) {
         const file = req.files.profile_picture;
         let extName = path.extname(file.name);
@@ -250,13 +256,7 @@ const userAddress = asyncHandler(async (req, res) => {
         nearest_area,
         working_slots: slots
     });
-
-    customer = await User.findById(req.body.user);
-
-    customer.userAddress.push(address);
-    await customer.save();
-    customer = await User.findById(req.body.user).populate("userAddress");
-    res.status(200).json({success: customer});
+    res.status(200).json({success: address});
 });
 
 
