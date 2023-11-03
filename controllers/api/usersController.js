@@ -18,7 +18,17 @@ const sendMail = require("../../mails/registrationmail");
 const errorRsponse = require("../../utils/errorResponse");
 const ErrorResponse = require("../../utils/errorResponse");
 const asyncHandler = require("../../middleware/asyncMiddleware");
+const paginationHelper = require("../../utils/pagination");
 
+
+
+const pagination =asyncHandler(async(req,res,next)=>{
+    let filter = {createdAt:{$gte:ISODate('2023-10-28')}};
+    let response = await paginationHelper(req,User,filter);
+    res.status(200).json({response:response})
+    
+
+})
 const handleSession = async (req, res) => {
     req.session.count = 99;
     res.send("session set " + req.session.count + " times");
@@ -160,8 +170,8 @@ const login = asyncHandler(async (req, res, next) => {
 
 
 const getAllUsers = asyncHandler(async (req, res) => {
-    const user = await User.find({});
-    res.status(200).json({users: user});
+    let response = await paginationHelper(req,User);
+    res.status(200).json(response);
 });
 
 
@@ -325,5 +335,6 @@ module.exports = {
     updateAddress,
     sendEmail,
     handleCookies,
-    handleSession
+    handleSession,
+    pagination,
 };

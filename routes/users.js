@@ -24,6 +24,8 @@ router.post('/update-address/:id' ,usersController.updateAddress);
 router.get('/send-email' ,usersController.sendEmail);
 router.get('/cookies' ,usersController.handleCookies);
 router.get('/sessions' ,usersController.handleSession);
+router.get('/pagination' ,usersController.pagination);
+
 
 
 

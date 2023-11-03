@@ -4,7 +4,6 @@ const bodyParser = require("body-parser");
 const config = require("./config/app");
 const db = require("./database/db"); // Import the database connection
 const jwt = require("jsonwebtoken");
-const secretKey = process.env.JWT_SECRET || "yourSecretKey";
 const authMiddleware = require("./middleware/authMiddleware");
 const permissionMiddleware = require("./middleware/permissionMiddleware");
 const upload = require("express-fileupload");
@@ -20,70 +19,61 @@ const { errorHandler } = require('./middleware/error')
 
 
 const app = express();
-app.use(upload()); //for uploading of file
 
-app.use(cookieParser()); //cookies
+ //for uploading of file
+app.use(upload());
 
-app.use(  //sessions
+ //cookies
+app.use(cookieParser());
+
+//sessions
+app.use(  
   session({
     secret: "mysecret",
     resave: false,
     saveUninitialized: true,
     // cookie: { secure: true },
   })
-); // session
+);
 
 app.use(morgan("dev"));
-// app.use(bodyParser.urlencoded({ extended: false }));
+
+// body parser
 app.use(bodyParser.json());
 
+// set path for views
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "Views"));
+
+//set path for assets
 app.use(express.static(__dirname + "/public"));
-// Define routes
 
 //rate limiter (throttling)
 app.use(limiter)
 
 
-//sanitize (prevents email or fields from getting data if provided empty)
+//sanitize (prevents email or fields from getting data if provided empty,prevents sql injection attacks)
 app.use(sanitize())
 
 //add protection headers to routes
 app.use(helmet())
 
 
-
 // app.use('/', authRoutes);
 app.use("/api/users", authRoutes);
 
-// app.use('/api/admin',authMiddleware ,permissionMiddleware,usersRoutes);
-app.use("/api/admin", usersRoutes);
+app.use('/api/admin',authMiddleware ,permissionMiddleware,usersRoutes);
+// app.use("/api/admin", usersRoutes);
 
+// error  handler
 app.use(errorHandler);
 
+//handles unhandled requests
 app.use("/*", function (req, res) {
   res.json(404).status("invalid url");
 });
 
+//create server
 app.listen(config.port, () => {
   console.log(`Server is running on port ${config.port}`);
 });
-
-// //Load HTTP module
-// const http = require("http");
-// const hostname = "127.0.0.1";
-// const port = 3000;
-
-// //Create HTTP server and listen on port 3000 for requests
-// const server = http.createServer((req, res) => {
-//   //Set the response HTTP header with HTTP status and Content type
-//   res.statusCode = 200;
-//   res.setHeader("Content-Type", "text/plain");
-//   res.end("Hello World\n");
-// });
-
-// //listen for request on port 3000, and as a callback function have the port listened on logged
-// server.listen(port, hostname, () => {
-//   console.log(`Server running at http://${hostname}:${port}/`);
-// });
