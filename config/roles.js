@@ -1,9 +1,9 @@
 module.exports = Object.freeze({
     ROLES:{
-        ADMIN: 1,
-        EMPLOYEE: 2,
-        CUSTOMER: 3,
-        PRODUCTION: 4,
+        ADMIN: 'admin',
+        EMPLOYEE: 'employee',
+        CUSTOMER: 'customer',
+        MANAGER: 'manager',
     },
 
 });

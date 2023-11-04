@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const secretKey = process.env.JWT_SECRET || "yourSecretKey";
 const { Schema } = require("mongoose");
+const Address =require('./addressModel')
 
 const userSchema = new mongoose.Schema(
   {
@@ -20,7 +21,6 @@ const userSchema = new mongoose.Schema(
         // if email exists
         validator: async function (email) {
           const user = await this.constructor.findOne({ email });
-          console.log("thiis is", this.id);
           if (user) {
             if (this.id === user.id) {
               return true;
@@ -40,7 +40,6 @@ const userSchema = new mongoose.Schema(
       validate: {
         validator: async function (phone) {
           const user = await this.constructor.findOne({ phone });
-          console.log("thiis is", this.id);
           if (user) {
             if (this.id === user.id) {
               return true;
@@ -87,17 +86,21 @@ const userSchema = new mongoose.Schema(
     },
     fee: {
       type: Number,
+    },
+    nameSlug:{
+      type:String
     }
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
-
-userSchema.pre('remove', async function (next) {
-  console.log('Addresses being deleted');
-  await this.model('Address').deleteMany({ user: this._id });
+//delete user address on deleting user
+userSchema.pre('deleteOne', async function (next) {
+  let filter = this.getFilter(); //cannot use this._id because Mongoose does not automatically populate the _id field when a document is being deleted
+  await Address.deleteMany({ user: filter._id  });
   next();
 });
+
 // Define a pre-save hook to hash the password before saving the user
 userSchema.pre("save", function (next) {
   const user = this;
@@ -116,6 +119,13 @@ userSchema.pre("save", function (next) {
       next();
     });
   });
+
+});
+
+
+userSchema.pre("save", function (next) {
+  this.nameSlug = this.name.replaceAll(' ','-');
+  next();
 });
 
 //Reverse Populate with virtuals
@@ -125,6 +135,7 @@ userSchema.virtual('addresses',{
   foreignField:'user',
   justOne:false
 })
+
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;

@@ -178,7 +178,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
 
 const getUser = asyncHandler(async (req, res) => {
-    const user = await User.find({_id: req.params.id});
+    const user = await User.find({_id: req.params.id}).populate('addresses');
     res.status(200).json({success: true, message: "data retrieved successfully", data: user});
 });
 
@@ -194,11 +194,8 @@ const updateUser = asyncHandler(async (req, res) => {
 
 
 const deleteUser = asyncHandler(async (req, res) => {
-    const user = await User.findByIdAndRemove(req.params.id);
-    if (user) {
-        // await user.remove().exec();
-    } 
-    res.status(200).json({success: true, message: "user deleted successfully"});
+    const user = await User.deleteOne({_id : req.params.id});
+    res.status(200).json({success: true, message: "user deleted successfull with associated addresses"});
 });
 
 

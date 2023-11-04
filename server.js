@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const config = require("./config/app");
 const db = require("./database/db"); // Import the database connection
 const jwt = require("jsonwebtoken");
-const authMiddleware = require("./middleware/authMiddleware");
+const {authMiddleware,authorize} = require("./middleware/authMiddleware");
 const permissionMiddleware = require("./middleware/permissionMiddleware");
 const upload = require("express-fileupload");
 const path = require("path");
@@ -62,7 +62,7 @@ app.use(helmet())
 // app.use('/', authRoutes);
 app.use("/api/users", authRoutes);
 
-app.use('/api/admin',authMiddleware ,permissionMiddleware,usersRoutes);
+app.use('/api/admin',authMiddleware() ,authorize('admin','user'),permissionMiddleware,usersRoutes);
 // app.use("/api/admin", usersRoutes);
 
 // error  handler

@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
+const ErrorResponse = require('../utils/errorResponse');
 const secretKey = process.env.JWT_SECRET || 'yourSecretKey';
 
-module.exports = async function(req,res,next){
+exports.authMiddleware =()=>{ return(req,res,next)=>{
     let token = req.header('Authorization');
     if(!token){
       res.status(403).json("unauthenticated")
@@ -22,10 +23,24 @@ module.exports = async function(req,res,next){
         // Assign the user to req.user when verification is successful
         else
         {
-
-          req.user = user;
+          // console.log('user--------------',user.user[0])
+          req.user = user.user[0];
           next();
         }
       });
     }
-  }
+  }}
+
+
+
+
+exports.authorize =(...roles) =>{
+  
+  console.log(roles)
+  return(req,res,next)=>{
+    if(!roles.includes(req.user.role)){
+      return next(new ErrorResponse('not authorized',403))
+    }
+    next();
+  }  
+}
